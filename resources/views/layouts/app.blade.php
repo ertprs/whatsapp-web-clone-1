@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/emojionearea/3.4.1/emojionearea.min.css">
 
     <!-- Custom styles -->
-    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="{{asset('css/app.css')}}">
 
 </head>
 
@@ -35,7 +35,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/emojionearea/3.4.1/emojionearea.min.js"></script>
 
     @if(session('user'))
-    <script src="js/app.js"></script>
+    <script src="{{asset('js/app.js')}}"></script>
     @endif
 
     @if(session('info'))

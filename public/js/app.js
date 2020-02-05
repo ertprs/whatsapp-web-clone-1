@@ -101,18 +101,22 @@ $(document).ready(function () {
     $("#messages").animate({
       scrollTop: messagesHeight
     });
-    console.log(messagesHeight);
   }
 
   toBottom(); // Send message
 
   function sendMessage(msg) {
-    // Send message only if there is text
+    // Comprobar si el mensaje es enviado desde una chat privado
+    var re = /\/chat\/private\/\w+/g;
+    var isPrivate = window.location.pathname.match(re);
+    var data = {
+      message: msg.innerText
+    };
+    if (isPrivate) data["private"] = true; // Send message only if there is text
+
     if (msg.innerText.length > 0) {
       var messages = document.getElementById("messages");
-      $.post("/chat", {
-        message: msg.innerText
-      }).done(function (data) {
+      $.post("/chat", {}).done(function (data) {
         var _data$pop = data.pop(),
             content = _data$pop.content,
             time = _data$pop.time;
@@ -154,6 +158,10 @@ $(document).ready(function () {
 
   $("#send").click(function () {
     sendMessage(message);
+  }); // Send private message
+
+  $("#send-private").click(function () {
+    console.log("privado");
   });
 });
 

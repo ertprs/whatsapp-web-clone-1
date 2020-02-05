@@ -38,27 +38,33 @@
             <div class="col s3 chat__users">
                 <p class="teal-text"><?= count($users) ?> participantes</p>
                 @foreach ($users as $user)
-                <div class="row chat__user">
-                    <div class="col s3">
-                        @if (array_key_exists($user, $images))
-                        <img src="{{ url('storage/img/' . $images[$user]) }}" alt="{{$user}} image" class="circle responsive-img" style="width: 49px; height: 49px;">
-                        @else
-                        <img src="https://drogaspoliticacultura.net/wp-content/uploads/2017/09/placeholder-user.jpg" alt="{{$user}} image" class="circle responsive-img" style="width: 49px; height: 49px;">
+                @if ($user != session('user'))
+                <a href="/chat/private/{{$user}}">
+                    @else
+                    <a href="#">
                         @endif
+                        <div class="row chat__user">
+                            <div class="col s3">
+                                @if (array_key_exists($user, $images))
+                                <img src="{{ url('storage/img/' . $images[$user]) }}" alt="{{$user}} image" class="circle responsive-img" style="width: 49px; height: 49px;">
+                                @else
+                                <img src="https://drogaspoliticacultura.net/wp-content/uploads/2017/09/placeholder-user.jpg" alt="{{$user}} image" class="circle responsive-img" style="width: 49px; height: 49px;">
+                                @endif
+                            </div>
+                            <div class="col">
+                                <?= $user == session('user') ? 'Tú' : $user ?>
+                            </div>
+                        </div>
+                    </a>
+                    @endforeach
+                    <div class="row" style="margin-top: 4rem">
+                        <div class="col">
+                            <form action="/signout" method="post">
+                                @csrf
+                                <button class="waves-effect waves-light btn red" type="submit"><i class="material-icons left"> exit_to_app</i>cerrar sesión</button>
+                            </form>
+                        </div>
                     </div>
-                    <div class="col">
-                        <?= $user == session('user') ? 'Tú' : $user ?>
-                    </div>
-                </div>
-                @endforeach
-                <div class="row" style="margin-top: 4rem">
-                    <div class="col">
-                        <form action="/signout" method="post">
-                            @csrf
-                            <button class="waves-effect waves-light btn red" type="submit"><i class="material-icons left"> exit_to_app</i>cerrar sesión</button>
-                        </form>
-                    </div>
-                </div>
             </div>
         </div>
     </div>

@@ -54,6 +54,8 @@ class ChatController extends Controller
 
         $filename = 'messages.json';
 
+        return $request;
+
         // Sí no existe el fichero
         if (!is_file($filename)) {
             $file = fopen($filename, 'w');
@@ -81,6 +83,12 @@ class ChatController extends Controller
         }
 
         return json_decode(nl2br(file_get_contents($filename)));
+    }
+
+
+    public function privateChat($user)
+    {
+        return view('private', ['user' => $user]);
     }
 
     public function signout(Request $request)
