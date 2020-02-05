@@ -13,22 +13,28 @@ $(document).ready(function() {
 
     // Send message
     function sendMessage(msg) {
-        // Comprobar si el mensaje es enviado desde una chat privado
-        const re = /\/chat\/private\/\w+/g;
-
-        const isPrivate = window.location.pathname.match(re);
-
-        let data = {
-            message: msg.innerText
-        };
-
-        if (isPrivate) data.private = true;
-
         // Send message only if there is text
         if (msg.innerText.length > 0) {
             const messages = document.getElementById("messages");
-            $.post("/chat", {}).done(data => {
-                const { content, time } = data.pop();
+
+            // Comprobar si el mensaje es enviado desde una chat privado
+            const re = /\/chat\/private\/\w+/g;
+
+            const isPrivate = window.location.pathname.match(re);
+
+            let data = {
+                message: msg.innerText
+            };
+
+            if (isPrivate) {
+                data.private = true;
+                data.chatWith = window.location.pathname.split("/")[3];
+            }
+
+            $.post("/chat", {
+                ...data
+            }).done(response => {
+                const { content, time } = response.pop();
                 messages.insertAdjacentHTML(
                     "beforeEnd",
                     `<li class="me">

@@ -26,11 +26,11 @@ class ChatController extends Controller
         $users = json_decode(nl2br(file_get_contents('users.json')));
 
         // Obtener contenido el fichero "messages"
-        if (!is_file('messages.json')) {
-            $file = fopen('messages.json', 'w');
+        if (!is_file('public-messages.json')) {
+            $file = fopen('public-messages.json', 'w');
             fclose($file);
         }
-        $messages = json_decode(nl2br(file_get_contents('messages.json')));
+        $messages = json_decode(nl2br(file_get_contents('public-messages.json')));
 
         // Si no es un array, se inicializa
         if (!is_array($messages)) $messages = [];
@@ -51,38 +51,50 @@ class ChatController extends Controller
 
     public function store(Request $request)
     {
+        function createMessage($type, $request)
+        {
+            $filename = "$type-messages.json";
 
-        $filename = 'messages.json';
+            // Sí no existe el fichero
+            if (!is_file($filename)) {
+                $file = fopen($filename, 'w');
+                fclose($file);
+            } else {
+                // Obtener contenido el fichero "messages"
+                $messages = json_decode(nl2br(file_get_contents($filename)));
 
-        return $request;
+                // Si no es un array, se inicializa
+                if (!is_array($messages)) $messages = [];
 
-        // Sí no existe el fichero
-        if (!is_file($filename)) {
-            $file = fopen($filename, 'w');
-            fclose($file);
-        } else {
-            // Obtener contenido el fichero "messages"
-            $messages = json_decode(nl2br(file_get_contents($filename)));
+                // Se crear nuevo mensaje
+                $message = [];
+                $message['time'] = date('H:i');
+                $message['user'] = session('user');
+                $message['content'] = $request->input('message');
 
-            // Si no es un array, se inicializa
-            if (!is_array($messages)) $messages = [];
+                // Si es mensaje privado añadir usuario con el que estamos chateando
+                if ($type === 'private') $message['chatWith'] = $request->chatWith;
 
-            // Se crear nuevo mensaje
-            $message = [];
-            $message['time'] = date('H:i');
-            $message['user'] = session('user');
-            $message['content'] = $request->input('message');
+                // Se agrega mensaje
+                $messages[] = $message;
 
-            // Se agrega mensaje
-            $messages[] = $message;
+                // Se guarda mensajes en el fichero
+                $file = fopen($filename, 'w');
+                fwrite($file, json_encode($messages));
+                fclose($file);
+            }
 
-            // Se guarda mensajes en el fichero
-            $file = fopen($filename, 'w');
-            fwrite($file, json_encode($messages));
-            fclose($file);
+            // Mensajes publicos
+            return json_decode(nl2br(file_get_contents($filename)));
         }
 
-        return json_decode(nl2br(file_get_contents($filename)));
+        if (!$request->private) {
+            // Añadir mensaje publico
+            return createMessage('public', $request);
+        } else {
+            // Añadir mensaje privado
+            return createMessage('private', $request);
+        }
     }
 
 
