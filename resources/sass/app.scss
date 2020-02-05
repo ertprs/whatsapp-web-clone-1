@@ -1,0 +1,132 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    overflow: hidden;
+}
+
+.wrapper {
+    background: #d7dbd6;
+    height: 100vh;
+    &__top {
+        height: 127px;
+        width: 100%;
+        position: fixed;
+        top: 0;
+    }
+    &__content {
+        position: relative;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 10;
+        width: 90vw;
+        height: 95vh;
+        background-color: #fff;
+    }
+}
+
+.chat {
+    &__content {
+        position: relative;
+        background-image: url("https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png");
+        width: 100%;
+        height: 95vh;
+        padding-right: 0 !important;
+        &-user {
+            display: block;
+            font-size: 12px;
+        }
+        ul {
+            margin-top: 0;
+            overflow-y: scroll;
+            height: 90vh;
+
+            /* width */
+            &::-webkit-scrollbar {
+                width: 5px;
+            }
+
+            /* Track */
+            &::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
+            /* Handle */
+            &::-webkit-scrollbar-thumb {
+                background: #b9b3ad;
+            }
+
+            /* Handle on hover */
+            &::-webkit-scrollbar-thumb:hover {
+                background: #b9b3ad;
+            }
+        }
+        li {
+            padding: 0.5rem;
+            margin: 1rem 0;
+            width: fit-content;
+            max-width: 50%;
+            border-radius: 7.5px;
+            box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
+            &:last-child {
+                margin-bottom: 3rem;
+            }
+            &.me {
+                margin-left: auto;
+                margin-right: 0.75rem;
+                background-color: #dcf8c6 !important;
+            }
+        }
+    }
+    &__user {
+        padding: 0.5rem;
+        cursor: pointer;
+        &:hover {
+            background-color: #ededed;
+        }
+    }
+    &__users {
+        position: relative;
+        height: 95vh;
+        .btn {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            border-radius: 0;
+        }
+    }
+    &__input {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        padding: 1rem;
+        background-color: #f0f0f0;
+        .emojionearea {
+            border-radius: 21px;
+            &-button {
+                left: 3px !important;
+            }
+            &-editor {
+                padding-left: 1.5rem !important;
+            }
+            &-picker {
+                left: 0 !important;
+            }
+            &-wrapper:after {
+                left: 20px;
+            }
+        }
+    }
+    &__send {
+        button {
+            border: none;
+            color: #9ea3a5;
+            background-color: #f0f0f0;
+            cursor: pointer;
+        }
+    }
+}
