@@ -29,7 +29,7 @@
                 @if ($user != session('user'))
                 <a href="/chat/private/{{$user}}">
                     @else
-                    <a href="#">
+                    <a href="#" class="me">
                         @endif
                         <div class="row chat__user">
                             <div class="col s3">

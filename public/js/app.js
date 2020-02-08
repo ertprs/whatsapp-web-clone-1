@@ -100,7 +100,8 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 $(document).ready(function () {
-  var message; // Config ajax headers
+  var message;
+  var user = sessionStorage.getItem("user"); // Config ajax headers
 
   $.ajaxSetup({
     headers: {
@@ -126,18 +127,7 @@ $(document).ready(function () {
         }
       }
     }
-  }); // @foreach ($messages as $message)
-  // <li class="white <?= $message->user == session('user') ? 'me' : '' ?>">
-  //     @if ($message->user <> session('user'))
-  //         <span class="chat__content-user">
-  //             {{$message->user}}
-  //         </span>
-  //         @endif
-  //         {{$message->content}}
-  //         <small>{{$message->time}}</small>
-  // </li>
-  // @endforeach
-  // Simular mensajes en tiempo real
+  }); // Simular mensajes en tiempo real
 
   var regex = /^\/chat$/gm;
   var str = window.location.pathname; // Comprobar si estamos en el chat público o en privado
@@ -147,7 +137,7 @@ $(document).ready(function () {
     $.get("/chat/messages/".concat(typeOfChat)).done(function (res) {
       document.getElementById("messages").innerHTML = "";
       res.forEach(function (m) {
-        document.getElementById("messages").innerHTML += "\n                    <li class=\"white\">\n                        <span class=\"chat__content-user\">\n                            ".concat(m.user, "\n                        </span>\n                        ").concat(m.content, "\n                        <small>").concat(m.time, "</small>\n                    </li>\n            ");
+        document.getElementById("messages").innerHTML += "\n                    <li class=\"white ".concat(m.user == user ? "me" : "", "\">\n                        <span \n                        class=\"chat__content-user\" \n                        style=\"display:").concat(m.user == user ? "none" : "block", "\">\n                            ").concat(m.user, "\n                        </span>\n                        ").concat(m.content, "\n                        <small>").concat(m.time, "</small>\n                    </li>\n            ");
       });
     });
   }, 500); // Scroll to bottom of messages

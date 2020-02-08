@@ -1,5 +1,6 @@
 $(document).ready(function() {
     let message;
+    let user = sessionStorage.getItem("user");
 
     // Config ajax headers
     $.ajaxSetup({
@@ -33,18 +34,6 @@ $(document).ready(function() {
         }
     });
 
-    // @foreach ($messages as $message)
-    // <li class="white <?= $message->user == session('user') ? 'me' : '' ?>">
-    //     @if ($message->user <> session('user'))
-    //         <span class="chat__content-user">
-    //             {{$message->user}}
-    //         </span>
-    //         @endif
-    //         {{$message->content}}
-    //         <small>{{$message->time}}</small>
-    // </li>
-    // @endforeach
-
     // Simular mensajes en tiempo real
     const regex = /^\/chat$/gm;
     const str = window.location.pathname;
@@ -57,8 +46,10 @@ $(document).ready(function() {
             document.getElementById("messages").innerHTML = "";
             res.forEach(m => {
                 document.getElementById("messages").innerHTML += `
-                    <li class="white">
-                        <span class="chat__content-user">
+                    <li class="white ${m.user == user ? "me" : ""}">
+                        <span 
+                        class="chat__content-user" 
+                        style="display:${m.user == user ? "none" : "block"}">
                             ${m.user}
                         </span>
                         ${m.content}

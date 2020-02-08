@@ -35,6 +35,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/emojionearea/3.4.1/emojionearea.min.js"></script>
 
     @if(session('user'))
+    <script>
+        // Storage user in session
+        sessionStorage.setItem('user', '<?= session('user') ?>');
+    </script>
     <script src="{{asset('js/app.js')}}"></script>
     @endif
 
