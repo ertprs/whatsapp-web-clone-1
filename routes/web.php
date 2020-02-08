@@ -21,4 +21,7 @@ Route::post('/chat', 'ChatController@store');
 
 Route::get('/chat/private/{user}', 'ChatController@privateChat');
 
+Route::get('/chat/messages/{type}', 'ChatController@messages');
+Route::get('/chat/recipients', 'ChatController@recipients');
+
 Route::post('/signout', 'ChatController@signout');

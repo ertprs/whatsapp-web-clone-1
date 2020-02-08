@@ -9,19 +9,7 @@
     <div class="z-depth-2 wrapper__content">
         <div class="row chat">
             <div class="col s9 chat__content" style="overflow: hidden">
-                <ul id="messages">
-                    @foreach ($messages as $message)
-                    <li class="white <?= $message->user == session('user') ? 'me' : '' ?>">
-                        @if ($message->user <> session('user'))
-                            <span class="chat__content-user">
-                                {{$message->user}}
-                            </span>
-                            @endif
-                            {{$message->content}}
-                            <small>{{$message->time}}</small>
-                    </li>
-                    @endforeach
-                </ul>
+                <ul id="messages"></ul>
                 <div class="chat__input">
                     <div class="row valign-wrapper" style="margin-bottom: 0">
                         <div class="col s11">

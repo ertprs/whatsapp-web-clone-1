@@ -100,46 +100,13 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 $(document).ready(function () {
-  var message; // Scroll to bottom of messages
+  var message; // Config ajax headers
 
-  function toBottom() {
-    var messagesHeight = $("#messages").height();
-    $("#messages").animate({
-      scrollTop: messagesHeight
-    });
-  }
-
-  toBottom(); // Send message
-
-  function sendMessage(msg) {
-    // Send message only if there is text
-    if (msg.innerText.length > 0) {
-      var messages = document.getElementById("messages"); // Comprobar si el mensaje es enviado desde una chat privado
-
-      var re = /\/chat\/private\/\w+/g;
-      var isPrivate = window.location.pathname.match(re);
-      var data = {
-        message: msg.innerText
-      };
-
-      if (isPrivate) {
-        data["private"] = true;
-        data.chatWith = window.location.pathname.split("/")[3];
-      }
-
-      $.post("/chat", _objectSpread({}, data)).done(function (response) {
-        var _response$pop = response.pop(),
-            content = _response$pop.content,
-            time = _response$pop.time;
-
-        messages.insertAdjacentHTML("beforeEnd", "<li class=\"me\">\n                    ".concat(content, "\n                    <small>").concat(time, "</small>\n                </li>")); // Clear textarea
-
-        msg.innerText = "";
-        toBottom();
-      });
+  $.ajaxSetup({
+    headers: {
+      "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content")
     }
-  } // Init icons
-
+  }); // Init icons
 
   $("#emojionearea").emojioneArea({
     pickerPosition: "top",
@@ -159,13 +126,64 @@ $(document).ready(function () {
         }
       }
     }
-  }); // Config ajax headers
+  }); // @foreach ($messages as $message)
+  // <li class="white <?= $message->user == session('user') ? 'me' : '' ?>">
+  //     @if ($message->user <> session('user'))
+  //         <span class="chat__content-user">
+  //             {{$message->user}}
+  //         </span>
+  //         @endif
+  //         {{$message->content}}
+  //         <small>{{$message->time}}</small>
+  // </li>
+  // @endforeach
+  // Simular mensajes en tiempo real
 
-  $.ajaxSetup({
-    headers: {
-      "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content")
+  var regex = /^\/chat$/gm;
+  var str = window.location.pathname; // Comprobar si estamos en el chat público o en privado
+
+  var typeOfChat = str.match(regex) ? "public" : "private";
+  setInterval(function () {
+    $.get("/chat/messages/".concat(typeOfChat)).done(function (res) {
+      document.getElementById("messages").innerHTML = "";
+      res.forEach(function (m) {
+        document.getElementById("messages").innerHTML += "\n                    <li class=\"white\">\n                        <span class=\"chat__content-user\">\n                            ".concat(m.user, "\n                        </span>\n                        ").concat(m.content, "\n                        <small>").concat(m.time, "</small>\n                    </li>\n            ");
+      });
+    });
+  }, 500); // Scroll to bottom of messages
+
+  function toBottom() {
+    var scroll = $("#messages");
+    $("#messages").animate({
+      scrollTop: scroll.prop("scrollHeight")
+    }, "slow");
+  }
+
+  toBottom(); // Send message
+
+  function sendMessage(msg) {
+    // Send message only if there is text
+    if (msg.innerText.length > 0) {
+      // Comprobar si el mensaje es enviado desde una chat privado
+      var re = /\/chat\/private\/\w+/g;
+      var isPrivate = window.location.pathname.match(re);
+      var data = {
+        message: msg.innerText
+      };
+
+      if (isPrivate) {
+        data["private"] = true;
+        data.chatWith = window.location.pathname.split("/")[3];
+      }
+
+      $.post("/chat", _objectSpread({}, data)).done(function () {
+        // Clear textarea
+        msg.innerText = "";
+        toBottom();
+      });
     }
-  }); // Send message on click
+  } // Send message on click
+
 
   $("#send").click(function () {
     sendMessage(message);

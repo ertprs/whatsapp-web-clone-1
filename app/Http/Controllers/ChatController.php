@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ChatController extends Controller
 {
@@ -96,6 +97,34 @@ class ChatController extends Controller
             // Añadir mensaje privado
             return createMessage('private', $request);
         }
+    }
+
+    public function messages($type)
+    {
+        $filename = "$type-messages.json";
+
+        $messages = json_decode(nl2br(file_get_contents($filename)));
+
+        // Si no es un array, se inicializa
+        if (!is_array($messages)) $messages = [];
+
+        return $messages;
+    }
+
+    public function recipients()
+    {
+
+        if (!is_file('users.json')) {
+            $file = fopen('users.json', 'w');
+            fclose($file);
+        }
+
+        $users = json_decode(nl2br(file_get_contents('users.json')));
+
+        // Si no es un array, se inicializa
+        if (!is_array($users)) $users = [];
+
+        return $users;
     }
 
 
