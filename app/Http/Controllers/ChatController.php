@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class ChatController extends Controller
 {
@@ -69,14 +69,15 @@ class ChatController extends Controller
                 // Se crear nuevo mensaje
                 $message = [];
                 $message['time'] = date('H:i');
-                $message['user'] = session('user');
                 $message['content'] = $request->input('message');
 
-                // Si es mensaje privado añadir usuario con el que estamos chateando
-                if ($type === 'private') $message['chatWith'] = $request->chatWith;
-
-                // Se agrega mensaje
-                $messages[] = $message;
+                if ($type === 'private') {
+                    $message['user'] = $request->chatWith;
+                    $messages[][session('user')] = $message;
+                } else {
+                    $message['user'] = session('user');
+                    $messages[] = $message;
+                }
 
                 // Se guarda mensajes en el fichero
                 $file = fopen($filename, 'w');
@@ -100,7 +101,44 @@ class ChatController extends Controller
 
     public function privateChat($user)
     {
-        return view('private', ['user' => $user]);
+        $filename = "private-messages.json";
+
+        // Sí no existe el fichero
+        if (!is_file($filename)) {
+            $file = fopen($filename, 'w');
+            fclose($file);
+        }
+
+        // Obtener contenido el fichero "messages"
+        $messages = json_decode(nl2br(file_get_contents($filename)));
+
+        // Si no es un array, se inicializa
+        if (!is_array($messages)) $messages = [];
+
+
+        // Mensajes privados
+        $privateMessages = [];
+
+        // Obtener mensajes que he enviado
+        foreach ($messages as $message) {
+            try {
+                if ($message->{session('user')}) $privateMessages[] = $message;
+            } catch (Exception $e) {
+                echo 'Excepción capturada: ',  $e->getMessage(), "\n";
+            }
+        }
+
+
+        // Obtener mensajes que me han enviado
+        foreach ($messages as $message) {
+            try {
+                if ($message->{$user}) $privateMessages[] = $message;
+            } catch (Exception $e) {
+                echo 'Excepción capturada: ',  $e->getMessage(), "\n";
+            }
+        }
+
+        return view('private', ['user' => $user, 'messages' => $privateMessages]);
     }
 
     public function signout(Request $request)

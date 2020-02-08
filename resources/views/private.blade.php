@@ -13,6 +13,7 @@
             </div>
             <div class="col s9 chat__content" style="overflow: hidden">
                 <ul id="messages">
+
                 </ul>
                 <div class="chat__input">
                     <div class="row valign-wrapper" style="margin-bottom: 0">
