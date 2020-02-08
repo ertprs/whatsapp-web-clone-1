@@ -130,6 +130,18 @@ class ChatController extends Controller
 
     public function privateChat($user)
     {
+        $isLogged = session('user');
+
+        // Volver al inicio si el usuario no está registrado
+        if (!$isLogged) {
+            return back()->with('info', "Debes iniciar sesión");
+        }
+
+        return view('private', ['user' => $user]);
+    }
+
+    public function privateMessages($user)
+    {
         $filename = "private-messages.json";
 
         // Sí no existe el fichero
@@ -148,26 +160,20 @@ class ChatController extends Controller
         // Mensajes privados
         $privateMessages = [];
 
-        // Obtener mensajes que he enviado
         foreach ($messages as $message) {
             try {
-                if ($message->{session('user')}) $privateMessages[] = $message;
+                // Obtener mensajes del usuario X
+                $privateMessages[] = $message->{$user};
             } catch (Exception $e) {
-                echo 'Excepción capturada: ',  $e->getMessage(), "\n";
+            }
+            try {
+                // Obtener mis mensajes
+                $privateMessages[] = $message->{session('user')};
+            } catch (Exception $e) {
             }
         }
 
-
-        // Obtener mensajes que me han enviado
-        foreach ($messages as $message) {
-            try {
-                if ($message->{$user}) $privateMessages[] = $message;
-            } catch (Exception $e) {
-                echo 'Excepción capturada: ',  $e->getMessage(), "\n";
-            }
-        }
-
-        return view('private', ['user' => $user, 'messages' => $privateMessages]);
+        return $privateMessages;
     }
 
     public function signout(Request $request)

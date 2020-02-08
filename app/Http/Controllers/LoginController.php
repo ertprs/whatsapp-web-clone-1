@@ -38,7 +38,7 @@ class LoginController extends Controller
         // Sí no existe el fichero
         if (!is_file($filename)) {
             $file = fopen($filename, 'w');
-            array_unshift($users, $username);
+            $users[] = $username;
             fwrite($file, json_encode($users));
             fclose($file);
 
@@ -61,7 +61,7 @@ class LoginController extends Controller
 
             // Añadir usuario si no está en el fichero
             $file = fopen($filename, 'w');
-            array_unshift($activeUsers, $username);
+            $activeUsers[] = $username;
             fwrite($file, json_encode($activeUsers));
             fclose($file);
 

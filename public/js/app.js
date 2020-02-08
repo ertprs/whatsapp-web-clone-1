@@ -132,13 +132,23 @@ $(document).ready(function () {
   var regex = /^\/chat$/gm;
   var str = window.location.pathname; // Comprobar si estamos en el chat público o en privado
 
-  var typeOfChat = str.match(regex) ? "public" : "private";
+  var isPrivate = !str.match(regex);
+  var typeOfChat = isPrivate ? "private" : "public";
+  var chatWith = window.location.pathname.split("/")[3];
   setInterval(function () {
-    $.get("/chat/messages/".concat(typeOfChat)).done(function (res) {
+    $.get("/chat/messages/".concat(typeOfChat).concat(isPrivate ? "/" + chatWith : "")).done(function (res) {
       document.getElementById("messages").innerHTML = "";
-      res.forEach(function (m) {
-        document.getElementById("messages").innerHTML += "\n                    <li class=\"white ".concat(m.user == user ? "me" : "", "\">\n                        <span \n                        class=\"chat__content-user\" \n                        style=\"display:").concat(m.user == user ? "none" : "block", "\">\n                            ").concat(m.user, "\n                        </span>\n                        ").concat(m.content, "\n                        <small>").concat(m.time, "</small>\n                    </li>\n            ");
-      });
+
+      if (isPrivate) {
+        res = filterUsers(res);
+        res.forEach(function (m) {
+          document.getElementById("messages").innerHTML += "\n                        <li class=\"white ".concat(m.user == chatWith ? "me" : "", "\">\n                            <span \n                            class=\"chat__content-user\" \n                            style=\"display:").concat(m.user != chatWith ? "block" : "none", "\">\n                                ").concat(chatWith, "\n                            </span>\n                            ").concat(m.content, "\n                            <small>").concat(m.time, "</small>\n                        </li>\n                ");
+        });
+      } else {
+        res.forEach(function (m) {
+          document.getElementById("messages").innerHTML += "\n                        <li class=\"white ".concat(m.user == user ? "me" : "", "\">\n                            <span \n                            class=\"chat__content-user\" \n                            style=\"display:").concat(m.user == user ? "none" : "block", "\">\n                                ").concat(m.user, "\n                            </span>\n                            ").concat(m.content, "\n                            <small>").concat(m.time, "</small>\n                        </li>\n                ");
+        });
+      }
     });
   }, 500); // Scroll to bottom of messages
 
@@ -156,12 +166,14 @@ $(document).ready(function () {
     if (msg.innerText.length > 0) {
       // Comprobar si el mensaje es enviado desde una chat privado
       var re = /\/chat\/private\/\w+/g;
-      var isPrivate = window.location.pathname.match(re);
+
+      var _isPrivate = window.location.pathname.match(re);
+
       var data = {
         message: msg.innerText
       };
 
-      if (isPrivate) {
+      if (_isPrivate) {
         data["private"] = true;
         data.chatWith = window.location.pathname.split("/")[3];
       }
@@ -172,6 +184,17 @@ $(document).ready(function () {
         toBottom();
       });
     }
+  }
+
+  function filterUsers(users) {
+    var res = [];
+    users.forEach(function (item) {
+      // Obtener mis mensajes con el usuario X
+      if (item.user === user) res.push(item); // Obtener mensajes del usuario X conmigo
+
+      if (item.user === chatWith) res.push(item);
+    });
+    return res;
   } // Send message on click
 
 
