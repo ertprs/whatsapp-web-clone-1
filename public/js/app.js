@@ -116,14 +116,21 @@ $(document).ready(function () {
     autocomplete: false,
     inline: true,
     hidePickerOnBlur: true,
+    saveEmojisAs: "unicode",
     events: {
-      change: function change(editor, event) {
+      change: function change(editor) {
         // Get editor element to get the message value
-        message = editor[0];
+        message = {
+          editor: editor[0],
+          text: this.getText()
+        };
       },
       keyup: function keyup(editor, event) {
         if (event.keyCode == 13 || event.key == "Enter" || event.code == "Enter") {
-          sendMessage(editor[0]);
+          sendMessage({
+            editor: editor[0],
+            text: this.getText()
+          });
         }
       }
     }
@@ -162,15 +169,17 @@ $(document).ready(function () {
   toBottom(); // Send message
 
   function sendMessage(msg) {
-    // Send message only if there is text
-    if (msg.innerText.length > 0) {
+    var editor = msg.editor,
+        text = msg.text; // Send message only if there is text
+
+    if (text.length > 0) {
       // Comprobar si el mensaje es enviado desde una chat privado
       var re = /\/chat\/private\/\w+/g;
 
       var _isPrivate = window.location.pathname.match(re);
 
       var data = {
-        message: msg.innerText
+        message: text
       };
 
       if (_isPrivate) {
@@ -180,7 +189,7 @@ $(document).ready(function () {
 
       $.post("/chat", _objectSpread({}, data)).done(function () {
         // Clear textarea
-        msg.innerText = "";
+        editor.innerText = "";
         toBottom();
       });
     }
@@ -203,7 +212,7 @@ $(document).ready(function () {
   }); // Send private message
 
   $("#send-private").click(function () {
-    console.log("privado");
+    sendMessage(message);
   });
 });
 

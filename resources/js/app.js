@@ -17,10 +17,11 @@ $(document).ready(function() {
         autocomplete: false,
         inline: true,
         hidePickerOnBlur: true,
+        saveEmojisAs: "unicode",
         events: {
-            change: function(editor, event) {
+            change: function(editor) {
                 // Get editor element to get the message value
-                message = editor[0];
+                message = { editor: editor[0], text: this.getText() };
             },
             keyup: function(editor, event) {
                 if (
@@ -28,7 +29,7 @@ $(document).ready(function() {
                     event.key == "Enter" ||
                     event.code == "Enter"
                 ) {
-                    sendMessage(editor[0]);
+                    sendMessage({ editor: editor[0], text: this.getText() });
                 }
             }
         }
@@ -44,15 +45,15 @@ $(document).ready(function() {
     const chatWith = window.location.pathname.split("/")[3];
 
     setInterval(() => {
-    $.get(
-        `/chat/messages/${typeOfChat}${isPrivate ? "/" + chatWith : ""}`
-    ).done(function(res) {
-        document.getElementById("messages").innerHTML = "";
+        $.get(
+            `/chat/messages/${typeOfChat}${isPrivate ? "/" + chatWith : ""}`
+        ).done(function(res) {
+            document.getElementById("messages").innerHTML = "";
 
-        if (isPrivate) {
-            res = filterUsers(res);
-            res.forEach(m => {
-                document.getElementById("messages").innerHTML += `
+            if (isPrivate) {
+                res = filterUsers(res);
+                res.forEach(m => {
+                    document.getElementById("messages").innerHTML += `
                         <li class="white ${m.user == chatWith ? "me" : ""}">
                             <span 
                             class="chat__content-user" 
@@ -65,10 +66,10 @@ $(document).ready(function() {
                             <small>${m.time}</small>
                         </li>
                 `;
-            });
-        } else {
-            res.forEach(m => {
-                document.getElementById("messages").innerHTML += `
+                });
+            } else {
+                res.forEach(m => {
+                    document.getElementById("messages").innerHTML += `
                         <li class="white ${m.user == user ? "me" : ""}">
                             <span 
                             class="chat__content-user" 
@@ -81,9 +82,9 @@ $(document).ready(function() {
                             <small>${m.time}</small>
                         </li>
                 `;
-            });
-        }
-    });
+                });
+            }
+        });
     }, 500);
 
     // Scroll to bottom of messages
@@ -101,15 +102,16 @@ $(document).ready(function() {
 
     // Send message
     function sendMessage(msg) {
+        const { editor, text } = msg;
         // Send message only if there is text
-        if (msg.innerText.length > 0) {
+        if (text.length > 0) {
             // Comprobar si el mensaje es enviado desde una chat privado
             const re = /\/chat\/private\/\w+/g;
 
             const isPrivate = window.location.pathname.match(re);
 
             let data = {
-                message: msg.innerText
+                message: text
             };
 
             if (isPrivate) {
@@ -121,7 +123,7 @@ $(document).ready(function() {
                 ...data
             }).done(() => {
                 // Clear textarea
-                msg.innerText = "";
+                editor.innerText = "";
                 toBottom();
             });
         }
@@ -145,6 +147,6 @@ $(document).ready(function() {
 
     // Send private message
     $("#send-private").click(function() {
-        console.log("privado");
+        sendMessage(message);
     });
 });
